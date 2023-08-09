@@ -1,7 +1,7 @@
 # BEVModel_StreamPETR
-The reproduction project of the BEV model # StreamPETR, which includes some code annotation work
+The reproduction project of the BEV model # StreamPETR, which includes some code annotation work.
 
-Thanks for the CMT authors！[Paper](https://arxiv.org/pdf/2301.01283.pdf) | [Code](https://github.com/junjie18/CMT)
+Thanks for the StreamPETR authors！[Paper](https://arxiv.org/abs/2303.11926) | [Code](https://github.com/exiawsh/StreamPETR)
 
 ## 🌵Necessary File Format
 - data/nuscenes/
@@ -10,43 +10,43 @@ Thanks for the CMT authors！[Paper](https://arxiv.org/pdf/2301.01283.pdf) | [Co
   - sweeps/
   - v1.0-test/
   - v1.0-trainval/
+- nusc_tracking/
 - projects/
 - tools/
-- ckpts/
 
 ## 🌵Build Envs
-You can refer to the official configuration environment documentation. [Official Git](https://github.com/junjie18/CMT)
+You can refer to the official configuration environment documentation. [Official Git](https://github.com/exiawsh/StreamPETR)
 
 Or use the Conda env configuration file we provide.
 ```
-conda env create -f cmt_env.yaml
+conda env create -f streamPETR_env.yaml
 ```
 
 ## 🌵Data create
 
 ```
-python tools/create_data.py nuscenes --root-path ./data/nuscenes --out-dir ./data/nuscenes --extra-tag nuscenes
+python tools/create_data_nusc.py --root-path ./data/nuscenes --out-dir ./data/nuscenes --extra-tag nuscenes2d --version v1.0
 ```
 
 ## 🌵Train Code
 ```
-export CUDA_VISIBLE_DEVICES=0,1,2,3
-bash tools/dist_train.sh projects/configs/fusion/cmt_voxel0100_r50_800x320_cbgs.py 4
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+tools/dist_train.sh projects/configs/StreamPETR/stream_petr_r50_flash_704_bs2_seq_24e.py 8 --work-dir work_dirs/stream_petr_r50_flash_704_bs2_seq_24e/
 ```
 
 ## 🌵Test Code
 ```
-python tools/test.py projects/configs/fusion/cmt_voxel0100_r50_800x320_cbgs.py ckpts/voxel0100_r50_800x320_epoch20.pth --eval bbox
+tools/dist_test.sh projects/configs/StreamPETR/stream_petr_r50_flash_704_bs2_seq_24e.py work_dirs/stream_petr_r50_flash_704_bs2_seq_24e/latest.pth 8 --eval bbox
 ```
 
 ## 🌵Training Result Record
 
 ID | Name | mAP | NDS | mATE | mASE | mAOE | mAVE | mAAE | Per-class results | Epochs | Data | Learning rate | Batch_size | GPUs | Train_time | Eval_time | Log_file
 :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :----------- | :-----------
-0 | voxel0100_r50_800x320_epoch20 | 0.6275 | 0.6784 | 0.3294 | 0.2541 | 0.3035 | 0.2810 | 0.1853 |  ![img1](https://github.com/PrymceQ/BEVModel_CMT/assets/109404970/c8c6b476-3cac-47b8-8cdf-27bf5154910d) | 20 | All | optimizer.lr=0.00007, lr_config.target_ratio=(3, 0.0001), | 8, sample per gpu=2 | 4 x Nvidia Geforce 3090 | 4days8hours | 83.6s | work_dirs/cmt_voxel0100_r50_800x320_cbgs_20230717/
+0 | stream_petr_r50_flash_704_bs2_seq_24e | 0.3841 | 0.4859 | 0.6772 | 0.2732 | 0.6244 | 0.2834 | 0.2030 |  ![670fe60d-e182-4dc6-bfa8-872add5b4452](https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/265940ad-8066-4fe8-b803-766897c7d5c7) | 24 | All | optimizer.lr=4e-4 | 16, sample per gpu=2 | 8 x Nvidia Geforce 3090 | 9hours | 113.5s | work_dirs/stream_petr_r50_flash_704_bs2_seq_24e_20230725_bs16_lr4/
+1 | stream_petr_vov_flash_800_bs2_seq_24e | 0.4840 | 0.5741 | 0.6153 | 0.2592 | 0.3510 | 0.2567 | 0.1971 | ![15a7dc32-d873-4481-b160-ace9bffd44d3](https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/1a4975e0-955f-4a87-951d-b124ff35a5a4) | 24 | All | optimizer.lr=4e-4 | 16, sample per gpu=2 | 8 x Nvidia Geforce 3090 | 13hours | 104.9s | work_dirs/stream_petr_vov_flash_800_bs2_seq_24e_20230726/
 
-
-## 🌵Resolved issues
+## 🌵Some useful tools
 ### 😲Out of memory when training.
 
 - Official devices -> 8 x Tesla A100 80G
