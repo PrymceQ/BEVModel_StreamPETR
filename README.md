@@ -53,35 +53,36 @@ ID | Name | mAP | NDS | mATE | mASE | mAOE | mAVE | mAAE | Per-class results | E
 1 | stream_petr_vov_flash_800_bs2_seq_24e | 0.4840 | 0.5741 | 0.6153 | 0.2592 | 0.3510 | 0.2567 | 0.1971 | ![15a7dc32-d873-4481-b160-ace9bffd44d3](https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/1a4975e0-955f-4a87-951d-b124ff35a5a4) | 24 | All | optimizer.lr=4e-4 | 16, sample per gpu=4 | 4 x Nvidia Geforce 3090 | 13hours | 104.9s | work_dirs/stream_petr_vov_flash_800_bs2_seq_24e_20230726/
 
 ## 🌵Some useful tools
+### 😲Visualization!
+<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/blob/master/imgs/1dfecb8189f54b999f4e47ddaa677fd0_pred.png" width="600px">
+
+```
+tools/dist_test.sh projects/configs/StreamPETR/stream_petr_vov_flash_800_bs2_seq_24e.py work_dirs/stream_petr_vov_flash_800_bs2_seq_24e/latest.pth 4 --format-only
+```
+
+
 ### 😲Create Loss Curve!
 
-<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/30212697-82a7-43cf-8ac8-bf76764dcd39" width="260px">
+<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/blob/master/imgs/loss.png" width="260px">
 
 ```
 python mmdetection3d/tools/analysis_tools/analyze_logs.py plot_curve /home/wangziqin/StreamPETR/work_dirs/stream_petr_r50_flash_704_bs2_seq_24e_20230724_4e-4/20230724_122923.log.json --keys loss
 ```
 
-### 😲Create Tracking json with `tracking_id`
+### 😲Create Tracking json with `tracking_id`!
 
-<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/b655850b-7b60-44b2-9c43-4a176e423b5e" width="560px">
+<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/blob/master/imgs/trackjson.png" width="560px">
 
 ```
 python nusc_tracking/pub_test.py --checkpoint val/work_dirs/stream_petr_vov_flash_800_bs2_seq_24e_20230726/Wed_Jul_26_10_38_31_2023/pts_bbox/results_nusc.json --work_dir ./tracking_out_results
 ```
-
-
-
-
-
 
 ## 🌵Key Model Files
 
 Here we have made simple annotations on some key model files in chinese, these annotations are based on "voxel0100_r50_800x320_epoch20" config. 
 
 You can find them in:
-- projects\mmdet3d_plugin\models\detectors\cmt.py
-- projects\mmdet3d_plugin\models\dense_heads\cmt_head.py
-- projects\mmdet3d_plugin\models\necks\cp_fpn.py
-- projects\mmdet3d_plugin\models\utils\cmt_transformer.py
-- projects\mmdet3d_plugin\models\utils\grid_mask.py
+- projects/mmdet3d_plugin/models/detectors/petr3d.py
+- projects/mmdet3d_plugin/models/dense_heads/streampetr_head.py
+- projects/mmdet3d_plugin/models/dense_heads/focal_head.py
 
