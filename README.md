@@ -38,6 +38,8 @@ tools/dist_train.sh projects/configs/StreamPETR/stream_petr_r50_flash_704_bs2_se
 
 > You need to modify the `num_gpus`/`batch_size`/`optimizer.lr` in the CONFIG FILE accordingly, otherwise it will cause the training to not converge.
 
+> num_gpus * batch_size==8: lr=2e-4; num_gpus * batch_size==16: lr=4e-4
+
 ## 🌵Test Code
 ```
 tools/dist_test.sh projects/configs/StreamPETR/stream_petr_r50_flash_704_bs2_seq_24e.py work_dirs/stream_petr_r50_flash_704_bs2_seq_24e/latest.pth 4 --eval bbox
@@ -52,50 +54,25 @@ ID | Name | mAP | NDS | mATE | mASE | mAOE | mAVE | mAAE | Per-class results | E
 
 ## 🌵Some useful tools
 ### 😲Create Loss Curve!
-![1d18e92d-f432-42e7-a92a-9f116720878f](https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/30212697-82a7-43cf-8ac8-bf76764dcd39)
+
+<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/30212697-82a7-43cf-8ac8-bf76764dcd39" width="260px">
 
 ```
 python mmdetection3d/tools/analysis_tools/analyze_logs.py plot_curve /home/wangziqin/StreamPETR/work_dirs/stream_petr_r50_flash_704_bs2_seq_24e_20230724_4e-4/20230724_122923.log.json --keys loss
 ```
 
-- Official devices -> 8 x Tesla A100 80G
-- Our devices -> 4 x Nvidia Geforce 3090
+### 😲Create Tracking json with `tracking_id`
 
-Config file use "with_cp=True" not "with_cp=False".
+<img src="https://github.com/PrymceQ/BEVModel_StreamPETR/assets/109404970/b655850b-7b60-44b2-9c43-4a176e423b5e" width="560px">
 
-### 😨Appear "grad_norm：nan" from 7-8 epoches.
-
-1. Change lr according to your devices and sample_per_gpu;
-```python
-optimizer = dict(
-    type='AdamW',
-    lr=0.00007,    # 0.00014 for 8 * 2 batchsize
-    paramwise_cfg=dict(
-        custom_keys={
-            'img_backbone': dict(lr_mult=0.01, decay_mult=5),
-            'img_neck': dict(lr_mult=0.1),
-        }),
-    weight_decay=0.01)  # for 8gpu * 2sample_per_gpu
 ```
-2. Change the lr_config.target_ratio.
-```python
-lr_config = dict(
-    policy='cyclic',
-    target_ratio=(3, 0.0001),  # (up_ratio, down_ratio)  # [default] target_ratio=(6, 0.0001) # change the up_ratio=6 to 3
-    cyclic_times=1,
-    step_ratio_up=0.4)
+python nusc_tracking/pub_test.py --checkpoint val/work_dirs/stream_petr_vov_flash_800_bs2_seq_24e_20230726/Wed_Jul_26_10_38_31_2023/pts_bbox/results_nusc.json --work_dir ./tracking_out_results
 ```
 
-### 😰After CTRL+C terminated the CMT training program, cuda memory still occupied.
 
-1. Use the code to find your [PID];
-```
-ps -ef ｜grep [command]
-```
-2. Kill them.
-```
-kill -9 [PID]
-```
+
+
+
 
 ## 🌵Key Model Files
 
